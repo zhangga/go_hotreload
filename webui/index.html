@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Golang热更</title>
+    <style>
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        body {padding: 50px;font-family: Arial, sans-serif;background: #f5f5f5;}
+        .container {width: 600px;margin: 0 auto;padding: 30px;background: white;border-radius: 8px;box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+        h1 {text-align: center;color: #333;margin-bottom: 30px;font-size: 22px;}
+        .input-box {margin-bottom: 20px;}
+        input {width: 100%;padding: 12px;border: 1px solid #ddd;border-radius: 4px;font-size: 16px;}
+        input[type="file"] {cursor: pointer;}
+        .tips {font-size: 12px;color: #666;margin-top: 8px;line-height: 1.5;}
+        button {width: 100%;padding: 12px;border: none;border-radius: 4px;background: #1677ff;color: white;font-size: 18px;cursor: pointer;margin-top: 10px;}
+        button:hover {background: #0d66d0;}
+        .result {margin-top: 25px;padding: 15px;border-radius: 4px;font-size: 16px;display: none;}
+        .success {background: #e6fffb;border: 1px solid #99f2e9;color: #00875a;}
+        .error {background: #fff2e8;border: 1px solid #ffbb96;color: #c41f00;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>输入或选择要热更的Patch</h1>
+
+    <!-- ✅ 新增：自定义文件名/文件路径输入框，带默认值 -->
+    <div class="input-box">
+        <input type="text" id="customFileName" placeholder="hotfix.so" value="hotfix.so">
+        <div class="tips">提示：输入要热更的patch文件名，路径从项目根目录开始</div>
+    </div>
+
+    <!-- ✅ 原有：文件选择框 -->
+<!--    <div class="input-box">-->
+<!--        <input type="file" id="fileSelector" accept="*">-->
+<!--        <div class="tips">提示：支持选择任意格式文件，仅获取文件名和文件内容</div>-->
+<!--    </div>-->
+
+    <!-- ✅ 原有：触发按钮 -->
+    <button onclick="handleFileAction()">执行热更</button>
+
+    <!-- ✅ 结果展示区域 -->
+    <div id="resultBox" class="result"></div>
+</div>
+
+<script>
+    // 核心方法：按钮点击后触发的主逻辑
+    function handleFileAction() {
+        const customNameInput = document.getElementById('customFileName');
+        const fileInput = document.getElementById('fileSelector');
+        const resultBox = document.getElementById('resultBox');
+
+        // 1. 获取手动输入的文件名/路径（去空格）
+        let targetFileName = customNameInput.value.trim();
+        // 2. 获取文件选择框的文件对象
+        const selectedFile = fileInput?.files?.length > 0 ? fileInput.files[0] : null;
+
+        // ✅ 核心判断逻辑：优先使用手动输入的内容，为空则用选择的文件名
+        if (targetFileName === "") {
+            if (!selectedFile) {
+                showResult("❌ 请手动输入文件名/路径，或选择一个文件！", "error");
+                return;
+            }
+            // 输入框为空，使用文件选择框的文件名
+            targetFileName = selectedFile.name;
+        }
+
+        // 展示当前使用的文件名/路径
+        showResult(`✅ 已确认目标文件：${targetFileName}`, "success");
+
+        // ========== 按需二选一：两种调用后端方式，都携带【最终确定的文件名/路径】 ==========
+        // 方式1【推荐】POST提交文件+自定义文件名 (后端拿文件完整内容+手动输入的文件名，功能最强，无限制)
+        if(selectedFile){
+            uploadFileWithCustomName(selectedFile, targetFileName);
+        }else{
+            // 只传自定义文件名/路径，没有文件上传
+            sendFilePathToBackend(targetFileName);
+        }
+
+        // 方式2 GET传参 (纯传递【自定义文件名/路径】参数，注释上面启用这个即可)
+        // sendFilePathToBackend(targetFileName);
+    }
+
+    // ✅ 推荐：POST提交文件 + 自定义文件名（最优方案，支持两种输入方式）
+    function uploadFileWithCustomName(file, customFileName) {
+        const formData = new FormData();
+        formData.append("file", file); // 上传文件本身
+        formData.append("customFileName", customFileName); // 手动输入的自定义文件名/路径
+        formData.append("originFileName", file.name); // 原文件名称
+
+        fetch("/api/handle-file", {
+            method: "POST",
+            body: formData
+        }).then(res => res.json()).then(data => {
+            showResult(`✅ 后端处理成功：${data.msg}`, "success");
+        }).catch(err => {
+            showResult(`❌ 后端处理失败：${err.message}`, "error");
+        });
+    }
+
+    // ✅ 备用：GET纯传递【自定义文件名/路径】参数
+    function sendFilePathToBackend(filePath) {
+        fetch(`/api/handle-path?filePath=${encodeURIComponent(filePath)}`)
+            .then(res => res.json())
+            .then(data => {
+                showResult(`✅ 后端接收参数成功：${data.msg}`, "success");
+            }).catch(err => {
+            showResult(`❌ 请求失败：${err.message}`, "error");
+        });
+    }
+
+    // 辅助：格式化文件大小
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
+        return (bytes / 1048576).toFixed(2) + " MB";
+    }
+
+    // 辅助：展示结果提示
+    function showResult(text, type) {
+        const resultBox = document.getElementById('resultBox');
+        resultBox.innerHTML = text;
+        resultBox.className = "result " + type;
+        resultBox.style.display = "block";
+    }
+</script>
+</body>
+</html>
