@@ -4,6 +4,12 @@ CUR_BRANCH	:=$(shell git branch --show-current)
 CUR_DIR		=$(shell pwd)
 OUT_DIR?	=$(CUR_DIR)/bin
 
+# example
+.PHONY: example
+# run example
+example:
+	$(GOCMD) run ./example/main.go
+
 # show help
 help:
 	@echo ''

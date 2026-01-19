@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="example" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go_hotreload" />
+    <working_directory value="$PROJECT_DIR$/example" />
+    <kind value="PACKAGE" />
+    <package value="github.com/zhangga/go_hotreload/example" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/example/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

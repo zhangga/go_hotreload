@@ -5,6 +5,7 @@ go 1.25.5
 require github.com/gin-gonic/gin v1.11.0
 
 require (
+	github.com/agiledragon/gomonkey/v2 v2.14.0 // indirect
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
