@@ -1,16 +1,15 @@
 package patch_v1
 
 import (
-	"github.com/agiledragon/gomonkey/v2"
 	"github.com/zhangga/go_hotreload/patch"
 )
 
 var GlobalPatchEntry patch.PatchEntry = &patchEntryImpl{
-	Patches: gomonkey.NewPatches(),
+	BasePatchEntry: patch.NewBasePatchEntry(),
 }
 
 type patchEntryImpl struct {
-	*gomonkey.Patches
+	*patch.BasePatchEntry
 }
 
 func (p *patchEntryImpl) Tag() string {
@@ -25,8 +24,4 @@ func (p *patchEntryImpl) Patch() error {
 func (p *patchEntryImpl) Unpatch() error {
 	p.Reset()
 	return nil
-}
-
-func (p *patchEntryImpl) GomonkeyPatches() *gomonkey.Patches {
-	return p.Patches
 }
