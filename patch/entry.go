@@ -13,7 +13,7 @@ const GlobalPatchEntryVarName = "GlobalPatchEntry"
 type PatchEntry interface {
 	Tag() string
 	Patch() error
-	Unpatch() error
+	Unpatch()
 }
 
 type BasePatchEntry struct {
@@ -72,4 +72,8 @@ func (b *BasePatchEntry) CheckStructFieldOffset(target, double any, tarFieldName
 			tarFieldName, tarOff, doubleFieldName, doubleOff)
 	}
 	return nil
+}
+
+func (b *BasePatchEntry) Unpatch() {
+	b.Patches.Reset()
 }

@@ -38,6 +38,9 @@
     <!-- ✅ 原有：触发按钮 -->
     <button onclick="handleFileAction()">执行热更</button>
 
+    <!-- 测试按钮 -->
+     <button onclick="testBackend()">测试后端执行</button>
+
     <!-- ✅ 结果展示区域 -->
     <div id="resultBox" class="result"></div>
 </div>
@@ -100,12 +103,50 @@
     // ✅ 备用：GET纯传递【自定义文件名/路径】参数
     function sendFilePathToBackend(filePath) {
         fetch(`/api/handle-path?filePath=${encodeURIComponent(filePath)}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`网络响应错误，状态码：${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
-                showResult(`✅ 后端接收参数成功：${data.msg}`, "success");
-            }).catch(err => {
-            showResult(`❌ 请求失败：${err.message}`, "error");
-        });
+                if (!data) {
+                    throw new Error("后端返回数据为空");
+                }
+                if (typeof data.code !== 'undefined' && data.code !== 0) {
+                    const errMsg = `业务错误，code=${data.code}，msg=${data.msg || '未知错误'}`;
+                    showResult(`❌ 后端处理失败：${errMsg}`, 'error');
+                    return;
+                }
+                showResult(`✅ 后端接收参数成功：${data.msg || '操作成功'}`, 'success');
+            })
+            .catch(err => {
+                showResult(`❌ 请求失败：${err.message}`, "error");
+            });
+    }
+
+    function testBackend() {
+        fetch(`/example/ping`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`网络响应错误，状态码：${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (!data) {
+                    throw new Error("后端返回数据为空");
+                }
+                if (typeof data.code !== 'undefined' && data.code !== 0) {
+                    const errMsg = `业务错误，code=${data.code}，msg=${data.msg || '未知错误'}`;
+                    showResult(`❌ 后端处理失败：${errMsg}`, 'error');
+                    return;
+                }
+                showResult(`✅ ping执行成功：${data.msg || '操作成功'}`, 'success');
+            })
+            .catch(err => {
+                showResult(`❌ 请求失败：${err.message}`, "error");
+            });
     }
 
     // 辅助：格式化文件大小

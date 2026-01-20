@@ -23,7 +23,7 @@ func LoadPatch(ctx context.Context, patchPath string) error {
 	// 1.判断patch是否存在
 	_, err := os.Stat(patchPath)
 	if err != nil {
-		return errors.New("patch_v1 file not found: " + patchPath)
+		return errors.New("patch file not found: " + patchPath)
 	}
 
 	// 2.判断是否已经有补丁加载

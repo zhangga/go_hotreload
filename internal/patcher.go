@@ -44,9 +44,7 @@ func (p *Patcher) Patch(ctx context.Context) error {
 		p.patchEntry = entry
 		if err = p.patchEntry.Patch(); err != nil {
 			log.Printf("patch error, path=%s, unpatching: %v", p.path, err)
-			if uperr := p.patchEntry.Unpatch(); uperr != nil {
-				log.Printf("unpatch path=%s, error: %v", p.path, uperr)
-			}
+			p.patchEntry.Unpatch()
 			return err
 		}
 		p.isPatched = true
@@ -65,9 +63,7 @@ func (p *Patcher) Unpatch(ctx context.Context) error {
 	if p.patchEntry == nil {
 		return errors.New("patch entry is nil: " + p.path)
 	}
-	if err := p.patchEntry.Unpatch(); err != nil {
-		return err
-	}
+	p.patchEntry.Unpatch()
 	p.isPatched = false
 	p.patchEntry = nil
 	return nil
