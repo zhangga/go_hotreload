@@ -1,5 +1,5 @@
 GOCMD		?=go
-CUR_BRANCH	:=$(shell git branch --show-current)
+CUR_BRANCH := $(shell git branch --show-current 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 # 当前目录
 CUR_DIR		=$(shell pwd)
 OUT_DIR?	=$(CUR_DIR)/bin
@@ -8,7 +8,13 @@ OUT_DIR?	=$(CUR_DIR)/bin
 .PHONY: example
 # run example
 example:
-	$(GOCMD) run ./example/main.go
+	cd example && $(GOCMD) run ./main.go
+
+# patch
+.PHONY: patch
+# create a patch file
+patch:
+	cd example && $(GOCMD) build -buildmode=plugin -o=patch_v1.so ./patch_v1/main.go
 
 # show help
 help:

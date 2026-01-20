@@ -32,6 +32,7 @@ func (p *Patcher) Patch(ctx context.Context) error {
 
 	lib, err := plugin.Open(p.path)
 	if err != nil {
+		log.Printf("open plugin error, path=%s: %v", p.path, err)
 		return err
 	}
 

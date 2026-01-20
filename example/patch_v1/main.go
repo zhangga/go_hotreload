@@ -1,4 +1,4 @@
-package patch_v1
+package main
 
 import (
 	"fmt"
