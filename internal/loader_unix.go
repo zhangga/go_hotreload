@@ -7,12 +7,12 @@ import "plugin"
 var _ Loader = (*loaderPlugin)(nil)
 
 type loaderPlugin struct {
-	path   string
-	plugin *Plugin
+	path string
+	lib  *plugin.Plugin
 }
 
 func (l *loaderPlugin) Lookup(symName string) (any, error) {
-	return l.plugin.Lookup(symName)
+	return l.lib.Lookup(symName)
 }
 
 func NewLoader(path string) (Loader, error) {
@@ -22,8 +22,8 @@ func NewLoader(path string) (Loader, error) {
 	}
 
 	loader := &loaderPlugin{
-		path:   path,
-		plugin: lib,
+		path: path,
+		lib:  lib,
 	}
 	return loader, nil
 }

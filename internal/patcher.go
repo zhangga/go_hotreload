@@ -25,6 +25,7 @@ func NewPatcher(path string) *Patcher {
 	}
 }
 
+// Patch applies the patch from the specified path.
 func (p *Patcher) Patch(ctx context.Context) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
