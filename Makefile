@@ -14,7 +14,7 @@ example:
 .PHONY: patch
 # create a patch file
 patch:
-	cd example && $(GOCMD) build -buildmode=plugin -o=patch_v1.so ./patch_v1/main.go
+	cd example && $(GOCMD) build -buildmode=plugin -o=patch_v1.so ./patch_v1
 
 # show help
 help:

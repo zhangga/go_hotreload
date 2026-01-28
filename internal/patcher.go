@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"plugin"
 	"reflect"
 	"sync"
 
@@ -30,13 +29,13 @@ func (p *Patcher) Patch(ctx context.Context) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	lib, err := plugin.Open(p.path)
+	loader, err := NewLoader(p.path)
 	if err != nil {
-		log.Printf("open plugin error, path=%s: %v", p.path, err)
+		log.Printf("loader open error, path=%s: %v", p.path, err)
 		return err
 	}
 
-	if sym, err := lib.Lookup(patch.GlobalPatchEntryVarName); err != nil {
+	if sym, err := loader.Lookup(patch.GlobalPatchEntryVarName); err != nil {
 		return err
 	} else if entryPtr, ok := sym.(*patch.PatchEntry); !ok {
 		return fmt.Errorf("type error:%+v", reflect.TypeOf(sym).String())

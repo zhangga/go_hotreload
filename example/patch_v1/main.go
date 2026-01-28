@@ -38,3 +38,7 @@ func (p *patchEntryImpl) Patch() error {
 	p.ApplyCore(nameFunc, reflect.ValueOf(patch_v1_player.Name_v1))
 	return nil
 }
+
+func main() {
+	fmt.Println("This is patch_v1 module")
+}
